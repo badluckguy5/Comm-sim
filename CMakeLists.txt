@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(CommSim
-    VERSION 1.0
-    LANGUAGES CXX
+	VERSION 1.0
+	LANGUAGES CXX
 )
 
 set(CMAKE_CXX_STANDARD 17)
@@ -10,5 +10,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(comm_sim
-    src/main.cpp
+	src/main.cpp
+	src/Node.cpp
+	src/Message.cpp
+	src/Network.cpp
+)
+
+target_include_directories(comm_sim
+	PRIVATE
+		${PROJECT_SOURCE_DIR}/include
 )
