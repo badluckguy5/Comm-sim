@@ -3,7 +3,7 @@
 #include <iostream>
 
 Node::Node(int id, std::string name) 
-	:id_(id), name_(name)
+	:id_(id), name_(name), running_(false)
 {
 }
 
@@ -30,3 +30,14 @@ void Node::receiveMessage(const Message& message) const{
 	<< ": " << message.getContent() << std::endl;
 }
 
+void Node::start() {
+	running_ = true;
+}
+
+void Node::stop() {
+	running_ = false;
+}
+
+bool Node::isRunning() const {
+	return running_;
+}

@@ -24,3 +24,34 @@ Node* Network::findNode(int id) {
 	}
 	return nullptr;
 }
+
+void Network::send(int senderId, int receiverId, std::string content) {
+	Node* sender = findNode(senderId);
+	Node* receiver = findNode(receiverId);
+
+	if (sender == nullptr) {
+		std::cout << "Invalid Sender ID" << std::endl;
+		return;
+	}
+
+	if (receiver == nullptr) {
+		std::cout << "Invalid Receiver ID" << std::endl;
+		return;
+	}
+
+	if (!sender->isRunning()) {
+		std::cout << "Sender is not running" << std::endl;
+		return;
+	}
+
+	if (!receiver->isRunning()) {
+		std::cout << "Receiver is not running" << std::endl;
+		return;
+	}
+
+	Message message = Message(senderId, content);
+
+	transmit(*sender, *receiver, message);
+}
+
+

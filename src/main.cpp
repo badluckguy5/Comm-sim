@@ -6,6 +6,9 @@ int main() {
 	Node node1(1, "Alpha");
 	Node node2(2, "Bravo");
 
+	node1.start();
+	node2.start();
+
 	Network network;
 
 	network.addNode(node1);
@@ -35,8 +38,15 @@ int main() {
 	std::cout << "Node " << node2.getId()
 	<< ": " << node2.getName() << std::endl;
 
-	Message message(node1.getId(), "Hello Bravo!");
-	network.transmit(node1, node2, message);
+	network.send(node1.getId(), node2.getId(), "Hello Bravo!");
+	network.send(node1.getId(), 5, "Test Case 1");
+	network.send(5, node2.getId(),"Test Case 2");
+
+	node1.stop();
+	network.send(node1.getId(), node2.getId(), "Sender Off");
+	node1.start();
+	node2.stop();
+	network.send(node1.getId(), node2.getId(), "Receiver Off");
 
 	return 0;
 }

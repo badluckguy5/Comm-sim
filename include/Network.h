@@ -10,6 +10,7 @@ public:
 	void transmit(const Node& sender, const Node& receiver, const Message& message);
 	void addNode(const Node& node);
 	Node* findNode(int id);
+	void send(int senderId, int receiverId, std::string content);
 
 private:
 	std::vector<Node> nodes_;
