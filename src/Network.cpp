@@ -12,14 +12,14 @@ void Network::transmit(const Node& sender,
 	receiver.receiveMessage(message);
 }
 
-void Network::addNode(const Node& node) {
+void Network::addNode(Node* node) {
 	nodes_.push_back(node);
 }
 
 Node* Network::findNode(int id) {
-	for (Node& node : nodes_) {
-		if (node.getId() == id) {
-			return &node;
+	for (Node* node : nodes_) {
+		if (node->getId() == id) {
+			return node;
 		}
 	}
 	return nullptr;

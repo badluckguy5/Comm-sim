@@ -4,16 +4,17 @@
 #include "Node.h"
 #include "Message.h"
 #include <vector>
+#include <string>
 
 class Network {
 public:
 	void transmit(const Node& sender, const Node& receiver, const Message& message);
-	void addNode(const Node& node);
+	void addNode(Node* node);
 	Node* findNode(int id);
 	void send(int senderId, int receiverId, std::string content);
 
 private:
-	std::vector<Node> nodes_;
+	std::vector<Node*> nodes_;
 };
 
 #endif

@@ -11,8 +11,8 @@ int main() {
 
 	Network network;
 
-	network.addNode(node1);
-	network.addNode(node2);
+	network.addNode(&node1);
+	network.addNode(&node2);
 
 	Node* testNode1 = network.findNode(2);
 	if (testNode1 != nullptr) {
