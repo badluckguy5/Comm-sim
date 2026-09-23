@@ -2,7 +2,7 @@
 #include <iostream>
 
 void Network::transmit(const Node& sender,
-			const Node& receiver,
+			Node& receiver,
 			const Message& message)
 {
 	std::cout << sender.getName() << " -> "

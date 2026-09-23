@@ -8,7 +8,7 @@
 
 class Network {
 public:
-	void transmit(const Node& sender, const Node& receiver, const Message& message);
+	void transmit(const Node& sender, Node& receiver, const Message& message);
 	void addNode(Node* node);
 	Node* findNode(int id);
 	void send(int senderId, int receiverId, std::string content);

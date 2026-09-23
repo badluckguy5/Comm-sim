@@ -2,8 +2,8 @@
 #define NODE_H
 
 #include <string>
-
-class Message;
+#include <vector>
+#include "Message.h"
 
 class Node
 {
@@ -11,17 +11,17 @@ public:
 	Node(int id, std::string name);
 	int getId() const;
 	std::string getName() const;
-	void sendMessage(const Node& receiver, const std::string& message) const;
-	void receiveMessage(const Message& message) const;
+	void receiveMessage(const Message& message);
 	void start();
 	void stop();
 	bool isRunning() const;
+	const std::vector<Message>& getMessages() const;
 
 private:
 	int id_;
 	std::string name_;
 	bool running_;
-
+	std::vector<Message> receivedMessages_;
 };
 
 #endif

@@ -1,6 +1,7 @@
 #include "Node.h"
 #include "Message.h"
 #include <iostream>
+#include <vector>
 
 Node::Node(int id, std::string name) 
 	:id_(id), name_(name), running_(false)
@@ -16,18 +17,11 @@ std::string Node::getName() const {
 	return name_;
 }
 
-void Node::sendMessage(const Node& receiver, const std::string& message) const {
-
-	Message msg(id_, message);
-
-	std::cout << name_ << "->" << receiver.getName()
-	<< ": " << message << std::endl;
-}
-
-void Node::receiveMessage(const Message& message) const{
+void Node::receiveMessage(const Message& message) {
 	std::cout << name_ << " received message from Node " 
-	<< message.getSenderId()
-	<< ": " << message.getContent() << std::endl;
+	<< message.getSenderId() << std::endl;
+
+	receivedMessages_.push_back(message);
 }
 
 void Node::start() {
@@ -41,3 +35,20 @@ void Node::stop() {
 bool Node::isRunning() const {
 	return running_;
 }
+
+const std::vector<Message>& Node::getMessages() const {
+	return receivedMessages_;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
