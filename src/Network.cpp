@@ -49,7 +49,7 @@ void Network::send(int senderId, int receiverId, std::string content) {
 		return;
 	}
 
-	Message message = Message(senderId, content);
+	Message message = Message(senderId, receiverId, content);
 
 	transmit(*sender, *receiver, message);
 }

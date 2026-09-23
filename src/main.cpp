@@ -61,6 +61,7 @@ int main() {
 
 	for (int i = 0; i < node2.getMessages().size(); i++) {
 		std::cout << "Message " << i + 1 << ":\n\t Sender: Node " << node2.getMessages()[i].getSenderId() 
+		<< "\n\t Receiver: Node " << node2.getMessages()[i].getReceiverId() 
 		<< "\n\t Content: " << node2.getMessages()[i].getContent() << std::endl;
 	}
 
