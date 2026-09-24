@@ -1,6 +1,22 @@
 #include <iostream>
 #include "Node.h"
 #include "Network.h"
+#include "Message.h"
+
+std::string priorityToString(Message::Priority priority) {
+	switch (priority) {
+		case Message::Priority::Low:
+			return "Low";
+		case Message::Priority::Normal:
+			return "Normal";
+		case Message::Priority::High:
+			return "High";
+		case Message::Priority::Urgent:
+			return "Urgent";
+	}
+
+	return "";
+}
 
 int main() {
 	std::cout << "//Basic Setup" << std::endl;
@@ -44,16 +60,16 @@ int main() {
 
 	std::cout << "\n//Transmission tests" << std::endl;
 
-	network.send(node1.getId(), node2.getId(), "Hello Bravo!");
-	network.send(node1.getId(), node2.getId(), "Second Message");
-	network.send(node1.getId(), 5, "Test Case 1");
-	network.send(5, node2.getId(),"Test Case 2");
+	network.send(node1.getId(), node2.getId(), Message::Priority::Normal, "Hello Bravo!");
+	network.send(node1.getId(), node2.getId(), Message::Priority::High, "Second Message");
+	network.send(node1.getId(), 5, Message::Priority::Normal, "Test Case 1");
+	network.send(5, node2.getId(), Message::Priority::Normal, "Test Case 2");
 
 	node1.stop();
-	network.send(node1.getId(), node2.getId(), "Sender Off");
+	network.send(node1.getId(), node2.getId(), Message::Priority::Normal, "Sender Off");
 	node1.start();
 	node2.stop();
-	network.send(node1.getId(), node2.getId(), "Receiver Off");
+	network.send(node1.getId(), node2.getId(), Message::Priority::Normal,"Receiver Off");
 
 	std::cout << "\n//Message History" << std::endl;
 
@@ -62,8 +78,11 @@ int main() {
 	for (int i = 0; i < node2.getMessages().size(); i++) {
 		std::cout << "Message " << i + 1 << ":\n\t Sender: Node " << node2.getMessages()[i].getSenderId() 
 		<< "\n\t Receiver: Node " << node2.getMessages()[i].getReceiverId() 
+		<< "\n\t Priority: " << priorityToString(node2.getMessages()[i].getPriority()) 
 		<< "\n\t Content: " << node2.getMessages()[i].getContent() << std::endl;
 	}
 
 	return 0;
 }
+
+

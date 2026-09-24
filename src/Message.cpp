@@ -1,7 +1,7 @@
 #include "Message.h"
 
-Message::Message(int senderId, int receiverId, std::string content)
-	: senderId_(senderId), receiverId_(receiverId), content_(content)
+Message::Message(int senderId, int receiverId, Priority priority, std::string content)
+	: senderId_(senderId), receiverId_(receiverId), priority_(priority), content_(content)
 {
 }
 
@@ -11,6 +11,10 @@ int Message::getSenderId() const {
 
 int Message::getReceiverId() const {
 	return receiverId_;
+}
+
+Message::Priority Message::getPriority() const {
+	return priority_;
 }
 
 std::string Message::getContent() const {

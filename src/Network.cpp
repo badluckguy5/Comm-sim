@@ -25,7 +25,7 @@ Node* Network::findNode(int id) {
 	return nullptr;
 }
 
-void Network::send(int senderId, int receiverId, std::string content) {
+void Network::send(int senderId, int receiverId, Message::Priority priority, std::string content) {
 	Node* sender = findNode(senderId);
 	Node* receiver = findNode(receiverId);
 
@@ -49,7 +49,7 @@ void Network::send(int senderId, int receiverId, std::string content) {
 		return;
 	}
 
-	Message message = Message(senderId, receiverId, content);
+	Message message = Message(senderId, receiverId, priority, content);
 
 	transmit(*sender, *receiver, message);
 }
