@@ -28,6 +28,7 @@ int main() {
 	node2.start();
 
 	Network network;
+	network.setLossProbability(0.25);
 
 	network.addNode(&node1);
 	network.addNode(&node2);
