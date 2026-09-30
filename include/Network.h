@@ -15,10 +15,13 @@ public:
 	Node* findNode(int id);
 	void send(int senderId, int receiverId, Message::Priority priority, std::string content);
 	void setLossProbability(double probability);
+	void setLatencyRange(int minLatency, int maxLatency);
 
 private:
 	std::vector<Node*> nodes_;
 	double lossProbability_;
+	int minLatency_;
+	int maxLatency_;
 	std::mt19937 randomEngine_;
 };
 

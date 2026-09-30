@@ -29,6 +29,7 @@ int main() {
 
 	Network network;
 	network.setLossProbability(0.25);
+	network.setLatencyRange(100, 3000);
 
 	network.addNode(&node1);
 	network.addNode(&node2);
