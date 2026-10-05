@@ -69,7 +69,7 @@ void Network::send(int senderId, int receiverId, Message::Priority priority, std
 		return;
 	}
 
-	Message message = Message(senderId, receiverId, priority, content);
+	Message message = Message(senderId, receiverId, Message::Type::Data, priority, content);
 
 	transmit(*sender, *receiver, message);
 }

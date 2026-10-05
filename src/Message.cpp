@@ -1,7 +1,12 @@
 #include "Message.h"
 
-Message::Message(int senderId, int receiverId, Priority priority, std::string content)
-	: senderId_(senderId), receiverId_(receiverId), priority_(priority), content_(content)
+Message::Message(int senderId, int receiverId, Type type)
+	: senderId_(senderId), receiverId_(receiverId), type_(type), priority_(Priority::Normal), content_("")
+{
+}
+
+Message::Message(int senderId, int receiverId, Type type, Priority priority, std::string content)
+	: senderId_(senderId), receiverId_(receiverId), type_(type), priority_(priority), content_(content)
 {
 }
 
@@ -21,3 +26,6 @@ std::string Message::getContent() const {
 	return content_;
 }
 
+Message::Type Message::getType() const {
+	return type_;
+}
