@@ -104,10 +104,35 @@ void Network::setLatencyRange(int minLatency, int maxLatency) {
 	return;
 }
 
+void Network::failNode(int id) {
+	Node* node = findNode(id);
+	if (node == nullptr) {
+		std::cout << "Invalid Node ID" << std::endl;
+		return;
+	}
 
+	if (!node->isRunning()) {
+		std::cout << "Node is already down" << std::endl;
+		return;
+	}
 
+	node->stop();
+}
 
+void Network::recoverNode(int id) {
+	Node* node = findNode(id);
+	if (node == nullptr) {
+		std::cout << "Invalid Node ID" << std::endl;
+		return;
+	}
 
+	if (node->isRunning()) {
+		std::cout << "Node is already running" << std::endl;
+		return;
+	}
+
+	node->start();
+}
 
 
 

@@ -16,6 +16,8 @@ public:
 	void send(int senderId, int receiverId, Message::Priority priority, std::string content);
 	void setLossProbability(double probability);
 	void setLatencyRange(int minLatency, int maxLatency);
+	void failNode(int id);
+	void recoverNode(int id);
 
 private:
 	std::vector<Node*> nodes_;

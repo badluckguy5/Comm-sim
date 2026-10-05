@@ -84,6 +84,20 @@ int main() {
 		<< "\n\t Content: " << node2.getMessages()[i].getContent() << std::endl;
 	}
 
+	std::cout << "\n//Node failure tests" << std::endl;
+
+	std::cout << "Node 1 is: " << node1.isRunning() << std::endl;
+	network.failNode(1);
+
+	std::cout << "Node 1 is: " << node1.isRunning() << std::endl;
+	network.failNode(1);
+
+	std::cout << "Node 1 is: " << node1.isRunning() << std::endl;
+	network.recoverNode(1);
+
+	std::cout << "Node 1 is: " << node1.isRunning() << std::endl;
+	network.recoverNode(1);
+
 	return 0;
 }
 
