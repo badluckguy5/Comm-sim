@@ -28,7 +28,7 @@ int main() {
 	node2.start();
 
 	Network network;
-	network.setLossProbability(0.25);
+	network.setLossProbability(.5);
 	network.setLatencyRange(100, 3000);
 
 	network.addNode(&node1);
@@ -98,7 +98,91 @@ int main() {
 	std::cout << "Node 1 is: " << node1.isRunning() << std::endl;
 	network.recoverNode(1);
 
+	std::cout << "\nHeartbeat tests" << std::endl;
+
+	node1.addKnownNode(node2.getId());
+
+	const NodeHealth* health = node1.getNodeHealth(node2.getId());
+
+	if (health != nullptr) {
+		std::cout << "Node 2 health record found\nOnline: " << health->online <<
+		"\nMissed Heartbeats: " << health->missedHeartbeats << std::endl; 
+	}
+
+	else {
+		std::cout << "Node 2 health record not found" << std::endl;
+	}
+
+	const NodeHealth* unknownHealth = node1.getNodeHealth(999);
+
+	if (unknownHealth == nullptr) {
+		std::cout << "Unknown node correctly returned nullptr" << std::endl;
+	}
+
+	else {
+		std::cout << "Unknown node has a record!" << std::endl;
+	}
+
+	node2.addKnownNode(node1.getId());
+
+	const NodeHealth* health2 = node2.getNodeHealth(node1.getId());
+
+	node1.recordSuccessfulContact(2);
+
+	std::cout << "Node 1 successful contact to node 2: " <<
+	health->online << "\nMissed Heartbeats: " << health->missedHeartbeats << std::endl;
+
+	node1.recordMissedHeartbeat(2);
+
+	std::cout << "\nNode 1 status to Node 2: " << health->online <<
+	"\nMissed Heartbeats: " << health->missedHeartbeats << std::endl;
+
+	node1.recordMissedHeartbeat(2);
+
+	std::cout << "\nNode 1 status to Node 2: " << health->online <<
+	"\nMissed Heartbeats: " << health->missedHeartbeats << std::endl;
+
+	node1.recordMissedHeartbeat(2);
+
+	std::cout << "\nNode 1 status to Node 2: " << health->online <<
+	"\nMissed Heartbeats: " << health->missedHeartbeats << std::endl;
+
+	node1.recordMissedHeartbeat(2);
+
+	std::cout << "\nNode 1 status to Node 2: " << health->online <<
+	"\nMissed Heartbeats: " << health->missedHeartbeats << std::endl;
+
+	node1.recordSuccessfulContact(2);
+
+	std::cout << "\nNode 1 status to Node 2: " << health->online <<
+	"\nMissed Heartbeats: " << health->missedHeartbeats << std::endl;
+
+	std::cout << std::endl;
+
+	Message heartbeat = Message(node1.getId(), node2.getId(), Message::Type::Heartbeat);
+
+	network.transmit(node1, node2, heartbeat);
+
+	std::cout << "\nNode 1 status to Node 2: " << health->online <<
+	"\nMissed Heartbeats: " << health->missedHeartbeats << std::endl;
+
+	std::cout << "\nNode 2 status to Node 1: " << health2->online <<
+	"\nMissed Heartbeats: " << health2->missedHeartbeats << std::endl;
+
 	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

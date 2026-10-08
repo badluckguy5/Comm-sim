@@ -3,13 +3,14 @@
 #include <random>
 #include <chrono>
 #include <thread>
+#include <optional>
 
 Network::Network()
 	: lossProbability_(0.0), minLatency_(1), maxLatency_(3000), randomEngine_(std::random_device{}())
 {
 }
 
-void Network::transmit(const Node& sender,
+void Network::transmit(Node& sender,
 			Node& receiver,
 			const Message& message)
 {
@@ -28,8 +29,11 @@ void Network::transmit(const Node& sender,
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(latency(randomEngine_)));
 
-	receiver.receiveMessage(message);
-	return;
+	auto response = receiver.receiveMessage(message);
+
+	if (response != std::nullopt) {
+		transmit(receiver, sender, *response);
+	}
 }
 
 void Network::addNode(Node* node) {
