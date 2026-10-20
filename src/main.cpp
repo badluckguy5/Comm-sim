@@ -1,7 +1,10 @@
 #include <iostream>
+#include <thread>
+#include <chrono>
 #include "Node.h"
 #include "Network.h"
 #include "Message.h"
+
 
 std::string priorityToString(Message::Priority priority) {
 	switch (priority) {
@@ -28,7 +31,7 @@ int main() {
 	node2.start();
 
 	Network network;
-	network.setLossProbability(.5);
+	network.setLossProbability(1);
 	network.setLatencyRange(100, 3000);
 
 	network.addNode(&node1);
@@ -60,7 +63,7 @@ int main() {
 	std::cout << "Node " << node2.getId()
 	<< ": " << node2.getName() << std::endl;
 
-	std::cout << "\n//Transmission tests" << std::endl;
+	std::cout << "\n//Send tests" << std::endl;
 
 	network.send(node1.getId(), node2.getId(), Message::Priority::Normal, "Hello Bravo!");
 	network.send(node1.getId(), node2.getId(), Message::Priority::High, "Second Message");
@@ -169,20 +172,48 @@ int main() {
 	std::cout << "\nNode 2 status to Node 1: " << health2->online <<
 	"\nMissed Heartbeats: " << health2->missedHeartbeats << std::endl;
 
+	std::cout << "\n/Transmission Tests" << std::endl;
+
+	node1.stop();
+
+	network.transmit(node1, node2, heartbeat);
+
+	node1.start();
+	node2.stop();
+
+	network.transmit(node1, node2, heartbeat);
+
+	node2.start();
+
+	network.transmit(node1, node2, heartbeat);
+
+	network.sendHeartbeat(node1.getId(), node2.getId());
+
+	if (health != nullptr) {
+		std::cout << "Alpha's heartbeat pending for Bravo: " << std::boolalpha
+                << health->heartbeatPending << "\nMissed Heartbeats: " << health->missedHeartbeats
+		<< std::endl;
+	}
+
+	else {
+    		std::cout << "Bravo is not registered with Alpha."
+              	<< std::endl;
+	}
+
+	std::this_thread::sleep_for(std::chrono::seconds(3));
+
+	node1.checkHeartbeatTimeout(2, std::chrono::milliseconds(2000));
+
+	if (health != nullptr) {
+		std::cout << "Alpha's heartbeat pending for Bravo: " << std::boolalpha
+                << health->heartbeatPending << "\nMissed Heartbeats: " << health->missedHeartbeats
+		<< std::endl;
+	}
+
+	else {
+    		std::cout << "Bravo is not registered with Alpha."
+              	<< std::endl;
+	}
+
 	return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

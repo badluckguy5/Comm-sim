@@ -18,6 +18,7 @@ public:
 	void setLatencyRange(int minLatency, int maxLatency);
 	void failNode(int id);
 	void recoverNode(int id);
+	void sendHeartbeat(int senderId, int receiverId);
 
 private:
 	std::vector<Node*> nodes_;

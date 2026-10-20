@@ -18,6 +18,16 @@ void Network::transmit(Node& sender,
 	<< receiver.getName() << ": " 
 	<< message.getContent() << std::endl;
 
+	if (!sender.isRunning()) {
+		std::cout << "Sender is not running. Message cancelled" << std::endl;
+		return;
+	}
+
+	if (!receiver.isRunning()) {
+		std::cout << "Receiver is not running. Message cancelled" << std::endl;
+		return;
+	}
+
 	std::uniform_real_distribution<double> distrib(0.0, 1.0);
 
 	if (distrib(randomEngine_) < lossProbability_) {
@@ -138,8 +148,37 @@ void Network::recoverNode(int id) {
 	node->start();
 }
 
+void Network::sendHeartbeat(int senderId, int receiverId) {
+	Node* sender = findNode(senderId);
+	Node* receiver = findNode(receiverId);
 
+	if (sender == nullptr) {
+		std::cout << "Invalid Sender ID" << std::endl;
+		return;
+	}
 
+	if (receiver == nullptr) {
+		std::cout << "Invalid Receiver ID" << std::endl;
+		return;
+	}
+
+	if (!sender->isRunning()) {
+		std::cout << "Sender is not running" << std::endl;
+		return;
+	}
+
+	if (!receiver->isRunning()) {
+		std::cout << "Receiver is not running" << std::endl;
+		return;
+	}
+
+	Message message = Message(senderId, receiverId, Message::Type::Heartbeat);
+
+	if (sender->recordHeartbeatSent(receiverId)) {
+		transmit(*sender, *receiver, message);
+	}
+
+}
 
 
 

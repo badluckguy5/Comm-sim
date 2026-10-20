@@ -13,6 +13,8 @@ struct NodeHealth
 	bool online;
 	int missedHeartbeats;
 	std::chrono::steady_clock::time_point lastSuccessfulContact;
+	bool heartbeatPending;
+	std::chrono::steady_clock::time_point heartbeatSentAt;
 };
 
 class Node
@@ -30,6 +32,8 @@ public:
 	const NodeHealth* getNodeHealth(int nodeId) const;
 	void recordSuccessfulContact(int nodeId);
 	void recordMissedHeartbeat(int nodeId);
+	bool recordHeartbeatSent(int nodeId);
+	bool checkHeartbeatTimeout(int nodeId, std::chrono::milliseconds timeout);
 
 private:
 	int id_;

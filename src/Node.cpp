@@ -31,11 +31,18 @@ std::optional<Message> Node::receiveMessage(const Message& message) {
 		case Message::Type::Heartbeat: {
 			recordSuccessfulContact(message.getSenderId());
 			return Message(id_, message.getSenderId(), Message::Type::HeartbeatAck);
-			}
+		}
 
-		case Message::Type::HeartbeatAck:
+		case Message::Type::HeartbeatAck: {
 			recordSuccessfulContact(message.getSenderId());
+
+			auto it = nodeHealth_.find(message.getSenderId());
+
+			if (it != nodeHealth_.end()) {
+				it->second.heartbeatPending = false;
+			}
 			return std::nullopt;
+		}
 	}
 
 	return std::nullopt;
@@ -62,7 +69,8 @@ void Node::addKnownNode(int nodeId) {
 		return;
 	}
 
-	nodeHealth_.emplace(nodeId, NodeHealth{false, 0, std::chrono::steady_clock::now()});
+	nodeHealth_.emplace(nodeId, NodeHealth{false, 0, std::chrono::steady_clock::now(), 
+		false, std::chrono::steady_clock::now()});
 }
 
 const NodeHealth* Node::getNodeHealth(int nodeId) const {
@@ -97,14 +105,30 @@ void Node::recordMissedHeartbeat(int nodeId) {
 	}
 }
 
+bool Node::recordHeartbeatSent(int nodeId) {
+	auto it = nodeHealth_.find(nodeId);
 
+	if (it != nodeHealth_.end()) {
+		if (!it->second.heartbeatPending) {
+			it->second.heartbeatPending = true;
+			it->second.heartbeatSentAt = std::chrono::steady_clock::now();
+			return true;
+		}
+	}
 
+	return false;
+}
 
+bool Node::checkHeartbeatTimeout(int nodeId, std::chrono::milliseconds timeout) {
+	auto it = nodeHealth_.find(nodeId);
 
+	if (it != nodeHealth_.end()) {
+		if (it->second.heartbeatPending && std::chrono::steady_clock::now() - it->second.heartbeatSentAt > timeout) {
+			recordMissedHeartbeat(nodeId);
+			it->second.heartbeatPending = false;
+			return true;
+		}
+	}
 
-
-
-
-
-
-
+	return false;
+}
