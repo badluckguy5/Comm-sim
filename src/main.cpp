@@ -215,5 +215,74 @@ int main() {
               	<< std::endl;
 	}
 
+	Node node3(3, "Charlie");
+	node3.start();
+	network.addNode(&node3);
+	node1.addKnownNode(node3.getId());
+
+	const NodeHealth* health3 = node1.getNodeHealth(node3.getId());
+
+	if (health != nullptr) {
+		std::cout << "Alpha's heartbeat pending for Charlie: " << std::boolalpha
+                << health3->heartbeatPending << "\nMissed Heartbeats: " << health3->missedHeartbeats
+		<< std::endl;
+	}
+
+	else {
+    		std::cout << "Charlie is not registered with Alpha."
+              	<< std::endl;
+	}
+
+	network.sendHeartbeat(node1.getId(), node2.getId());
+	network.sendHeartbeat(node1.getId(), node3.getId());
+	node1.checkAllHeartbeatTimeouts(std::chrono::milliseconds(2000));
+
+	if (health != nullptr) {
+		std::cout << "Alpha's heartbeat pending for Bravo: " << std::boolalpha
+                << health->heartbeatPending << "\nMissed Heartbeats: " << health->missedHeartbeats
+		<< std::endl;
+	}
+
+	else {
+    		std::cout << "Bravo is not registered with Alpha."
+              	<< std::endl;
+	}
+
+	if (health != nullptr) {
+		std::cout << "Alpha's heartbeat pending for Charlie: " << std::boolalpha
+                << health3->heartbeatPending << "\nMissed Heartbeats: " << health3->missedHeartbeats
+		<< std::endl;
+	}
+
+	else {
+    		std::cout << "Charlie is not registered with Alpha."
+              	<< std::endl;
+	}
+
+	std::this_thread::sleep_for(std::chrono::seconds(3));
+	node1.checkAllHeartbeatTimeouts(std::chrono::milliseconds(2000));
+
+	if (health != nullptr) {
+		std::cout << "Alpha's heartbeat pending for Bravo: " << std::boolalpha
+                << health->heartbeatPending << "\nMissed Heartbeats: " << health->missedHeartbeats
+		<< std::endl;
+	}
+
+	else {
+    		std::cout << "Bravo is not registered with Alpha."
+              	<< std::endl;
+	}
+
+	if (health != nullptr) {
+		std::cout << "Alpha's heartbeat pending for Charlie: " << std::boolalpha
+                << health3->heartbeatPending << "\nMissed Heartbeats: " << health3->missedHeartbeats
+		<< std::endl;
+	}
+
+	else {
+    		std::cout << "Charlie is not registered with Alpha."
+              	<< std::endl;
+	}
+
 	return 0;
 }

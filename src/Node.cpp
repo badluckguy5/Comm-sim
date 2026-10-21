@@ -3,6 +3,7 @@
 #include <iostream>
 #include <chrono>
 #include <optional>
+#include <vector>
 
 Node::Node(int id, std::string name) 
 	:id_(id), name_(name), running_(false)
@@ -131,4 +132,19 @@ bool Node::checkHeartbeatTimeout(int nodeId, std::chrono::milliseconds timeout) 
 	}
 
 	return false;
+}
+
+void Node::checkAllHeartbeatTimeouts(std::chrono::milliseconds timeout) {
+	for (auto& entry : nodeHealth_) {
+		checkHeartbeatTimeout(entry.first, timeout);
+	}
+}
+
+std::vector<int> Node::getKnownIds() const {
+	std::vector<int> results;
+	for (const auto& entry : nodeHealth_) {
+		results.push_back(entry.first);
+	}
+
+	return results;
 }

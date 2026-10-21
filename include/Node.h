@@ -34,6 +34,8 @@ public:
 	void recordMissedHeartbeat(int nodeId);
 	bool recordHeartbeatSent(int nodeId);
 	bool checkHeartbeatTimeout(int nodeId, std::chrono::milliseconds timeout);
+	void checkAllHeartbeatTimeouts(std::chrono::milliseconds timeout);
+	std::vector<int> getKnownIds() const;
 
 private:
 	int id_;
