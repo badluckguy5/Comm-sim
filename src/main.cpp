@@ -31,7 +31,7 @@ int main() {
 	node2.start();
 
 	Network network;
-	network.setLossProbability(1);
+	network.setLossProbability(0.5);
 	network.setLatencyRange(100, 3000);
 
 	network.addNode(&node1);
@@ -222,7 +222,7 @@ int main() {
 
 	const NodeHealth* health3 = node1.getNodeHealth(node3.getId());
 
-	if (health != nullptr) {
+	if (health3 != nullptr) {
 		std::cout << "Alpha's heartbeat pending for Charlie: " << std::boolalpha
                 << health3->heartbeatPending << "\nMissed Heartbeats: " << health3->missedHeartbeats
 		<< std::endl;
@@ -248,7 +248,7 @@ int main() {
               	<< std::endl;
 	}
 
-	if (health != nullptr) {
+	if (health3 != nullptr) {
 		std::cout << "Alpha's heartbeat pending for Charlie: " << std::boolalpha
                 << health3->heartbeatPending << "\nMissed Heartbeats: " << health3->missedHeartbeats
 		<< std::endl;
@@ -273,7 +273,7 @@ int main() {
               	<< std::endl;
 	}
 
-	if (health != nullptr) {
+	if (health3 != nullptr) {
 		std::cout << "Alpha's heartbeat pending for Charlie: " << std::boolalpha
                 << health3->heartbeatPending << "\nMissed Heartbeats: " << health3->missedHeartbeats
 		<< std::endl;
@@ -283,6 +283,44 @@ int main() {
     		std::cout << "Charlie is not registered with Alpha."
               	<< std::endl;
 	}
+
+	network.monitorNode(1);
+	std::this_thread::sleep_for(std::chrono::seconds(4));
+
+	if (health != nullptr) {
+		std::cout << "Alpha's heartbeat pending for Bravo: " << std::boolalpha
+                << health->heartbeatPending << "\nMissed Heartbeats: " << health->missedHeartbeats
+		<< std::endl;
+	}
+
+	else {
+    		std::cout << "Bravo is not registered with Alpha."
+              	<< std::endl;
+	}
+
+	network.monitorAllNodes();
+
+	std::cout << "\nNode 1 status to Node 2: " << health->online <<
+	"\nMissed Heartbeats: " << health->missedHeartbeats << std::endl;
+
+	std::cout << "\nNode 2 status to Node 1: " << health2->online <<
+	"\nMissed Heartbeats: " << health2->missedHeartbeats << std::endl;
+
+	if (health3 != nullptr) {
+		std::cout << "Alpha's heartbeat pending for Charlie: " << std::boolalpha
+                << health3->heartbeatPending << "\nMissed Heartbeats: " << health3->missedHeartbeats
+		<< std::endl;
+	}
+
+	else {
+    		std::cout << "Charlie is not registered with Alpha."
+              	<< std::endl;
+	}
+
+	std::cout << "\n\nRunning automated monitoring" << std::endl;
+
+	network.startMonitoring();
+	network.runMonitoring(std::chrono::milliseconds(5000));
 
 	return 0;
 }

@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <random>
+#include <chrono>
 
 class Network {
 public:
@@ -19,6 +20,11 @@ public:
 	void failNode(int id);
 	void recoverNode(int id);
 	void sendHeartbeat(int senderId, int receiverId);
+	void monitorNode(int nodeId);
+	void monitorAllNodes();
+	void startMonitoring();
+	void stopMonitoring();
+	void runMonitoring(std::chrono::milliseconds interval);
 
 private:
 	std::vector<Node*> nodes_;
@@ -26,6 +32,7 @@ private:
 	int minLatency_;
 	int maxLatency_;
 	std::mt19937 randomEngine_;
+	bool monitoring_;
 };
 
 #endif

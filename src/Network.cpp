@@ -1,7 +1,6 @@
 #include "Network.h"
 #include <iostream>
 #include <random>
-#include <chrono>
 #include <thread>
 #include <optional>
 
@@ -177,8 +176,58 @@ void Network::sendHeartbeat(int senderId, int receiverId) {
 	if (sender->recordHeartbeatSent(receiverId)) {
 		transmit(*sender, *receiver, message);
 	}
-
 }
+
+void Network::monitorNode(int nodeId) {
+	Node* node = findNode(nodeId);
+
+	if (node != nullptr) {
+		node->checkAllHeartbeatTimeouts(std::chrono::milliseconds(3000));
+
+		std::vector<int> knownIds = node->getKnownIds();
+
+		for (int id : knownIds) {
+			auto it = node->getNodeHealth(id);
+			if (it != nullptr) {
+				if (!it->heartbeatPending) {
+					sendHeartbeat(nodeId, id);
+				}
+			}
+		}
+	}
+}
+
+void Network::monitorAllNodes() {
+	for (auto* node : nodes_) {
+		int id = node->getId();
+		monitorNode(id);
+	}
+}
+
+void Network::startMonitoring() {
+	monitoring_ = true;
+}
+
+void Network::stopMonitoring() {
+	monitoring_ = false;
+}
+
+void Network::runMonitoring(std::chrono::milliseconds interval) {
+	int loopLimit = 5;
+
+	while (monitoring_ && loopLimit > 0) {
+		loopLimit--;
+
+		monitorAllNodes();
+
+		if (loopLimit > 0) {
+			std::this_thread::sleep_for(interval);
+		}
+	}
+}
+
+
+
 
 
 
