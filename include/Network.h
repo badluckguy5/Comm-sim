@@ -7,6 +7,8 @@
 #include <string>
 #include <random>
 #include <chrono>
+#include <thread>
+#include <atomic>
 
 class Network {
 public:
@@ -22,7 +24,7 @@ public:
 	void sendHeartbeat(int senderId, int receiverId);
 	void monitorNode(int nodeId);
 	void monitorAllNodes();
-	void startMonitoring();
+	void startMonitoring(std::chrono::milliseconds interval);
 	void stopMonitoring();
 	void runMonitoring(std::chrono::milliseconds interval);
 
@@ -32,7 +34,8 @@ private:
 	int minLatency_;
 	int maxLatency_;
 	std::mt19937 randomEngine_;
-	bool monitoring_;
+	std::atomic<bool> monitoring_;
+	std::thread monitoringThread_;
 };
 
 #endif

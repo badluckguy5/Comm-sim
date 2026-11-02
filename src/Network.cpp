@@ -5,7 +5,7 @@
 #include <optional>
 
 Network::Network()
-	: lossProbability_(0.0), minLatency_(1), maxLatency_(3000), randomEngine_(std::random_device{}())
+	: lossProbability_(0.0), minLatency_(1), maxLatency_(3000), randomEngine_(std::random_device{}()), monitoring_(false), monitoringThread_()
 {
 }
 
@@ -204,25 +204,26 @@ void Network::monitorAllNodes() {
 	}
 }
 
-void Network::startMonitoring() {
+void Network::startMonitoring(std::chrono::milliseconds interval) {
 	monitoring_ = true;
+
+	if (!monitoringThread_.joinable()) {
+		monitoringThread_ = std::thread(&Network::runMonitoring, this, interval);
+	}
 }
 
 void Network::stopMonitoring() {
 	monitoring_ = false;
+
+	if (monitoringThread_.joinable()) {
+		monitoringThread_.join();
+	}
 }
 
 void Network::runMonitoring(std::chrono::milliseconds interval) {
-	int loopLimit = 5;
-
-	while (monitoring_ && loopLimit > 0) {
-		loopLimit--;
-
+	while (monitoring_) {
 		monitorAllNodes();
-
-		if (loopLimit > 0) {
-			std::this_thread::sleep_for(interval);
-		}
+		std::this_thread::sleep_for(interval);
 	}
 }
 

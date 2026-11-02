@@ -319,8 +319,15 @@ int main() {
 
 	std::cout << "\n\nRunning automated monitoring" << std::endl;
 
-	network.startMonitoring();
-	network.runMonitoring(std::chrono::milliseconds(5000));
+	network.startMonitoring(std::chrono::milliseconds(5000));
+
+	std::this_thread::sleep_for(std::chrono::seconds(20));
+
+	network.stopMonitoring();
+
+	std::cout << "\n\nStopping automated monitoring" << std::endl;
+
+	std::this_thread::sleep_for(std::chrono::seconds(10));
 
 	return 0;
 }
