@@ -8,7 +8,7 @@ The goal is to build a modular simulator that demonstrates C++ programming, netw
 - Message transmission: Send messages between nodes with configurable message types and priorities.
 - Simulated network conditions: Configurable packet-loss probability and transmission latency to simulate real network conditions.
 - Node failure and recovery: Simulate nodes going offline and return to service.
-- Heartbeat monitoring: Exchange heartbeat and heartbeat acknowledgement messages
+- Heartbeat monitoring: Multithreaded and concurrent node heartbeat monitoring
 - Timeout detection: Track missed heartbeats and identify offline nodes
 
 ## Configuration
@@ -53,8 +53,6 @@ Comm-sim/ \
 Comm Sim is being developed incrementally, with an emphasis on modular design, clear separation of responsibilities, and realistic communication failure scenarios.
 
 ## Planned Improvments
-- Continuous and concurrent heartbeat monitoring
-- Multithreaded node monitoring and graceful shutdown
 - UDP and TCP communication between separate simulator processes
 - Packet serialization and deserialization
 - Expanded automated testing and network failure scenarios
