@@ -6,6 +6,8 @@
 #include <chrono>
 #include <unordered_map>
 #include <optional>
+#include <atomic>
+#include <mutex>
 #include "Message.h"
 
 struct NodeHealth
@@ -27,11 +29,11 @@ public:
 	void start();
 	void stop();
 	bool isRunning() const;
-	const std::vector<Message>& getMessages() const;
+	std::vector<Message> getMessages() const;
 	void addKnownNode(int nodeId);
-	const NodeHealth* getNodeHealth(int nodeId) const;
+	std::optional<NodeHealth> getNodeHealth(int nodeId) const;
 	void recordSuccessfulContact(int nodeId);
-	void recordMissedHeartbeat(int nodeId);
+	void updateMissedHeartbeat(NodeHealth& health);
 	bool recordHeartbeatSent(int nodeId);
 	bool checkHeartbeatTimeout(int nodeId, std::chrono::milliseconds timeout);
 	void checkAllHeartbeatTimeouts(std::chrono::milliseconds timeout);
@@ -40,9 +42,10 @@ public:
 private:
 	int id_;
 	std::string name_;
-	bool running_;
+	std::atomic<bool> running_;
 	std::vector<Message> receivedMessages_;
 	std::unordered_map<int, NodeHealth> nodeHealth_;
+	mutable std::mutex nodeMutex_;
 };
 
 #endif

@@ -9,10 +9,12 @@
 #include <chrono>
 #include <thread>
 #include <atomic>
+#include <mutex>
 
 class Network {
 public:
 	Network();
+	~Network();
 	void transmit(Node& sender, Node& receiver, const Message& message);
 	void addNode(Node* node);
 	Node* findNode(int id);
@@ -36,6 +38,7 @@ private:
 	std::mt19937 randomEngine_;
 	std::atomic<bool> monitoring_;
 	std::thread monitoringThread_;
+	std::mutex nodesMutex_;
 };
 
 #endif

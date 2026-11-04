@@ -9,6 +9,10 @@ Network::Network()
 {
 }
 
+Network::~Network() {
+	stopMonitoring();
+}
+
 void Network::transmit(Node& sender,
 			Node& receiver,
 			const Message& message)
@@ -46,13 +50,19 @@ void Network::transmit(Node& sender,
 }
 
 void Network::addNode(Node* node) {
-	nodes_.push_back(node);
+	{
+		std::lock_guard<std::mutex> lock(nodesMutex_);
+		nodes_.push_back(node);
+	}
 }
 
 Node* Network::findNode(int id) {
-	for (Node* node : nodes_) {
-		if (node->getId() == id) {
-			return node;
+	{
+		std::lock_guard<std::mutex> lock(nodesMutex_);
+		for (Node* node : nodes_) {
+			if (node->getId() == id) {
+				return node;
+			}
 		}
 	}
 	return nullptr;
@@ -188,7 +198,7 @@ void Network::monitorNode(int nodeId) {
 
 		for (int id : knownIds) {
 			auto it = node->getNodeHealth(id);
-			if (it != nullptr) {
+			if (it) {
 				if (!it->heartbeatPending) {
 					sendHeartbeat(nodeId, id);
 				}
@@ -198,7 +208,17 @@ void Network::monitorNode(int nodeId) {
 }
 
 void Network::monitorAllNodes() {
-	for (auto* node : nodes_) {
+	std::vector<Node*> nodeSnapshot;
+
+	{
+		std::lock_guard<std::mutex> lock(nodesMutex_);
+
+		for (auto node : nodes_) {
+			nodeSnapshot.push_back(node);
+		}
+	}
+
+	for (auto* node : nodeSnapshot) {
 		int id = node->getId();
 		monitorNode(id);
 	}

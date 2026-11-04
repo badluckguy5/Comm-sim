@@ -5,8 +5,8 @@
 #include <optional>
 #include <vector>
 
-Node::Node(int id, std::string name) 
-	:id_(id), name_(name), running_(false)
+Node::Node(int id, std::string name)
+	:id_(id), name_(name),running_(false)
 {
 }
 
@@ -23,7 +23,12 @@ std::optional<Message> Node::receiveMessage(const Message& message) {
 	std::cout << name_ << " received message from Node " 
 	<< message.getSenderId() << std::endl;
 
-	receivedMessages_.push_back(message);
+	{
+		std::lock_guard<std::mutex> lock(nodeMutex_);
+
+		receivedMessages_.push_back(message);
+
+	}
 
 	switch(message.getType()) {
 		case Message::Type::Data:
@@ -37,11 +42,14 @@ std::optional<Message> Node::receiveMessage(const Message& message) {
 		case Message::Type::HeartbeatAck: {
 			recordSuccessfulContact(message.getSenderId());
 
+			std::lock_guard<std::mutex> lock(nodeMutex_);
+
 			auto it = nodeHealth_.find(message.getSenderId());
 
 			if (it != nodeHealth_.end()) {
 				it->second.heartbeatPending = false;
 			}
+
 			return std::nullopt;
 		}
 	}
@@ -61,11 +69,15 @@ bool Node::isRunning() const {
 	return running_;
 }
 
-const std::vector<Message>& Node::getMessages() const {
+std::vector<Message> Node::getMessages() const {
+	std::lock_guard<std::mutex> lock(nodeMutex_);
+
 	return receivedMessages_;
 }
 
 void Node::addKnownNode(int nodeId) {
+	std::lock_guard<std::mutex> lock(nodeMutex_);
+
 	if (nodeHealth_.find(nodeId) != nodeHealth_.end()) {
 		return;
 	}
@@ -74,17 +86,21 @@ void Node::addKnownNode(int nodeId) {
 		false, std::chrono::steady_clock::now()});
 }
 
-const NodeHealth* Node::getNodeHealth(int nodeId) const {
+std::optional<NodeHealth> Node::getNodeHealth(int nodeId) const {
+	std::lock_guard<std::mutex> lock(nodeMutex_);
+
 	auto it = nodeHealth_.find(nodeId);
 
 	if (it != nodeHealth_.end()) {
-		return &it->second;
+		return it->second;
 	}
 
-	return nullptr;
+	return std::nullopt;
 }
 
 void Node::recordSuccessfulContact(int nodeId) {
+	std::lock_guard<std::mutex> lock(nodeMutex_);
+
 	auto it = nodeHealth_.find(nodeId);
 
 	if (it != nodeHealth_.end()) {
@@ -94,19 +110,17 @@ void Node::recordSuccessfulContact(int nodeId) {
 	}
 }
 
-void Node::recordMissedHeartbeat(int nodeId) {
-	auto it = nodeHealth_.find(nodeId);
+void Node::updateMissedHeartbeat(NodeHealth& health) {
+	health.missedHeartbeats += 1;
 
-	if (it != nodeHealth_.end()) {
-		it->second.missedHeartbeats += 1;
-
-		if (it->second.missedHeartbeats >= 4) {
-			it->second.online = false;
-		}
+	if (health.missedHeartbeats >= 4) {
+		health.online = false;
 	}
 }
 
 bool Node::recordHeartbeatSent(int nodeId) {
+	std::lock_guard<std::mutex> lock(nodeMutex_);
+
 	auto it = nodeHealth_.find(nodeId);
 
 	if (it != nodeHealth_.end()) {
@@ -121,11 +135,12 @@ bool Node::recordHeartbeatSent(int nodeId) {
 }
 
 bool Node::checkHeartbeatTimeout(int nodeId, std::chrono::milliseconds timeout) {
+	std::lock_guard<std::mutex> lock(nodeMutex_);
 	auto it = nodeHealth_.find(nodeId);
 
 	if (it != nodeHealth_.end()) {
 		if (it->second.heartbeatPending && std::chrono::steady_clock::now() - it->second.heartbeatSentAt > timeout) {
-			recordMissedHeartbeat(nodeId);
+			updateMissedHeartbeat(it->second);
 			it->second.heartbeatPending = false;
 			return true;
 		}
@@ -135,16 +150,52 @@ bool Node::checkHeartbeatTimeout(int nodeId, std::chrono::milliseconds timeout) 
 }
 
 void Node::checkAllHeartbeatTimeouts(std::chrono::milliseconds timeout) {
-	for (auto& entry : nodeHealth_) {
-		checkHeartbeatTimeout(entry.first, timeout);
+	std::vector<int> entries;
+
+	{
+		std::lock_guard<std::mutex> lock(nodeMutex_);
+
+		for (const auto& entry : nodeHealth_) {
+			entries.push_back(entry.first);
+		}
+	}
+
+	for (int nodeId : entries) {
+		checkHeartbeatTimeout(nodeId, timeout);
 	}
 }
 
 std::vector<int> Node::getKnownIds() const {
 	std::vector<int> results;
-	for (const auto& entry : nodeHealth_) {
-		results.push_back(entry.first);
+
+	{
+		std::lock_guard<std::mutex> lock(nodeMutex_);
+
+		for (const auto& entry : nodeHealth_) {
+			results.push_back(entry.first);
+		}
 	}
 
 	return results;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
