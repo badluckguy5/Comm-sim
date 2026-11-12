@@ -31,16 +31,44 @@ void Network::transmit(Node& sender,
 		return;
 	}
 
+	double lossProbabilitySnapshot;
+	int minLatencySnapshot;
+	int maxLatencySnapshot;
+
+	{
+		std::lock_guard<std::mutex> lock(configMutex_);
+
+		lossProbabilitySnapshot = lossProbability_;
+		minLatencySnapshot = minLatency_;
+		maxLatencySnapshot = maxLatency_;
+	}
+
 	std::uniform_real_distribution<double> distrib(0.0, 1.0);
 
-	if (distrib(randomEngine_) < lossProbability_) {
+	double lossChance;
+
+	{
+		std::lock_guard<std::mutex> lock(randomMutex_);
+
+		lossChance = distrib(randomEngine_);
+	}
+
+	if (lossChance < lossProbabilitySnapshot) {
 		std::cout << "Message Dropped" << std::endl;
 		return;
 	}
 
-	std::uniform_int_distribution<int> latency(minLatency_, maxLatency_);
+	std::uniform_int_distribution<int> latencyDistrib(minLatencySnapshot, maxLatencySnapshot);
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(latency(randomEngine_)));
+	int latency;
+
+	{
+		std::lock_guard<std::mutex> lock(randomMutex_);
+
+		latency = latencyDistrib(randomEngine_);
+	}
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(latency));
 
 	auto response = receiver.receiveMessage(message);
 
@@ -104,6 +132,8 @@ void Network::setLossProbability(double probability) {
 		return;
 	}
 
+	std::lock_guard<std::mutex> lock(configMutex_);
+
 	lossProbability_ = probability;
 	return;
 }
@@ -121,6 +151,8 @@ void Network::setLatencyRange(int minLatency, int maxLatency) {
 		std::cout << "Latency max must be less than or equal to 3000" << std:: endl;
 		return;
 	}
+
+	std::lock_guard<std::mutex> lock(configMutex_);
 
 	minLatency_ = minLatency;
 	maxLatency_ = maxLatency;

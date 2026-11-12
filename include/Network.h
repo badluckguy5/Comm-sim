@@ -39,6 +39,8 @@ private:
 	std::atomic<bool> monitoring_;
 	std::thread monitoringThread_;
 	std::mutex nodesMutex_;
+	std::mutex randomMutex_;
+	std::mutex configMutex_;
 };
 
 #endif
