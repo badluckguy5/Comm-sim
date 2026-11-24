@@ -2,6 +2,9 @@
 #define MESSAGE_H
 
 #include <string>
+#include <cstdint>
+#include <optional>
+#include <vector>
 
 class Message {
 public:
@@ -26,6 +29,8 @@ public:
 	Priority getPriority() const;
 	std::string getContent() const;
 	Type getType() const;
+	std::vector<std::uint8_t> serialize() const;
+	static std::optional<Message> deserialize(const std::vector<std::uint8_t>& data);
 
 private:
 	int senderId_;

@@ -4,7 +4,7 @@
 #include "Node.h"
 #include "Network.h"
 #include "Message.h"
-
+#include <iomanip>
 
 std::string priorityToString(Message::Priority priority) {
 	switch (priority) {
@@ -365,6 +365,60 @@ int main() {
 
 	std::cout << "\nNode 2 status to Node 1: " << health2->online <<
 	"\nMissed Heartbeats: " << health2->missedHeartbeats << std::endl;
+
+	std::cout << "\nConcurrent operations tests\n" << std::endl;
+
+	network.startMonitoring(std::chrono::milliseconds(5000));
+
+	network.send(node1.getId(), node2.getId(), Message::Priority::Normal, "Concurrency test 1");
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	network.send(node1.getId(), node2.getId(), Message::Priority::Normal, "Concurrency test 2");
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	network.send(node1.getId(), node2.getId(), Message::Priority::Normal, "Concurrency test 3");
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	network.send(node1.getId(), node2.getId(), Message::Priority::Normal, "Concurrency test 4");
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	network.send(node1.getId(), node2.getId(), Message::Priority::Normal, "Concurrency test 5");
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	network.send(node1.getId(), node2.getId(), Message::Priority::Normal, "Concurrency test 6");
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	network.send(node1.getId(), node2.getId(), Message::Priority::Normal, "Concurrency test 7");
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	network.send(node1.getId(), node2.getId(), Message::Priority::Normal, "Concurrency test 8");
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	network.send(node1.getId(), node2.getId(), Message::Priority::Normal, "Concurrency test 9");
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	network.send(node1.getId(), node2.getId(), Message::Priority::Normal, "Concurrency test 10");
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	network.stopMonitoring();
+
+	std::cout << "\n//Message Serialization test" << std::endl;
+
+	Message serialTest = Message(node1.getId(), node2.getId(), Message::Type::Data, Message::Priority::High, "Hello");
+
+	auto messageTest = serialTest.serialize();
+
+	std::cout << "Serialized Packet" << std::endl;
+
+	for (std::uint8_t byte : messageTest) {
+		std::cout <<  std::hex
+		<< std::uppercase
+		<< std::setw(2)
+		<<std::setfill('0')
+		<<static_cast<int>(byte) << " ";
+	}
+
+	std::cout << std::dec << std::endl;
 
 	return 0;
 }
