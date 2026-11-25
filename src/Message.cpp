@@ -1,4 +1,5 @@
 #include "Message.h"
+#include <limits>
 
 namespace {
 	constexpr std::uint8_t PROTOCOL_VERSION = 1;
@@ -103,6 +104,81 @@ std::vector<std::uint8_t> Message::serialize() const {
 
 	return packet;
 }
+
+std::optional<Message> Message::deserialize(const std::vector<std::uint8_t>& data) {
+	if (data.size() < 15 || data[0] != PROTOCOL_VERSION) {
+		return std::nullopt;
+	}
+
+	std::uint32_t senderIdValue = 0;
+	for (std::size_t i = 1; i <= 4; i++) {
+		senderIdValue <<= 8;
+		senderIdValue += data[i];
+	}
+
+	std::uint32_t receiverIdValue = 0;
+	for (std::size_t i = 5; i <= 8; i++) {
+		receiverIdValue <<= 8;
+		receiverIdValue += data[i];
+	}
+
+	if (data[9] > 2) {
+		return std::nullopt;
+	}
+	Message::Type messageType = static_cast<Message::Type>(data[9]);
+
+	if (data[10] > 3) {
+		return std::nullopt;
+	}
+	Message::Priority messagePriority = static_cast<Message::Priority>(data[10]);
+
+	std::uint32_t payloadLength = 0;
+	for (std::size_t i = 11; i <= 14; i++) {
+		payloadLength <<= 8;
+		payloadLength += data[i];
+	}
+	if (static_cast<std::size_t>(payloadLength) != data.size() - 15) {
+		return std::nullopt;
+	}
+
+	std::string payload(data.begin() + 15, data.end());
+
+	if (senderIdValue > std::numeric_limits<int>::max() || receiverIdValue > std::numeric_limits<int>::max()) {
+		return std::nullopt;
+	}
+
+	Message message(static_cast<int>(senderIdValue), static_cast<int>(receiverIdValue), messageType, messagePriority, payload);
+
+	return message;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

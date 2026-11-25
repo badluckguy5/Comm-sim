@@ -420,5 +420,45 @@ int main() {
 
 	std::cout << std::dec << std::endl;
 
+	std::cout << "\n//Message Deserialization test" << std::endl;
+
+	auto deserializationTest = Message::deserialize(messageTest);
+
+	if (deserializationTest.has_value()) {
+		std::cout << "Deserialization Successful" << std::endl;
+
+		std::cout << "Sender ID: " << deserializationTest->getSenderId() << std::endl;
+		std::cout << "Receiver ID: " << deserializationTest->getReceiverId() << std::endl;
+		std::cout << "Message Type: " << static_cast<int>(deserializationTest->getType()) << std::endl;
+		std::cout << "Priority: " << static_cast<int>(deserializationTest->getPriority()) << std::endl;
+		std::cout << "Content: " << deserializationTest->getContent() << std::endl;
+	}
+	else {
+		std::cout << "\nDeserialization Failed" << std::endl;
+	}
+
+	auto truncatedPacket = messageTest;
+	truncatedPacket.pop_back();
+	truncatedPacket.pop_back();
+	truncatedPacket.pop_back();
+
+	auto invalidTypePacket = messageTest;
+	invalidTypePacket[9] = 255;
+
+	auto invalidLengthPacket = messageTest;
+	invalidLengthPacket[14] = 10;
+
+	if (!Message::deserialize(truncatedPacket).has_value()) {
+		std::cout << "\nTruncated deserialization Failed" << std::endl;
+	}
+
+	if (!Message::deserialize(invalidTypePacket).has_value()) {
+		std::cout << "\nInvalid Type deserialization Failed" << std::endl;
+	}
+
+	if (!Message::deserialize(invalidLengthPacket).has_value()) {
+		std::cout << "\nInvalid Length deserialization Failed" << std::endl;
+	}
+
 	return 0;
 }
